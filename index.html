@@ -212,7 +212,6 @@
     <!-- UNIFIED JAVASCRIPT LOGIC                   -->
     <!-- ========================================== -->
     <script>
-        // ⚠️ GANTI URL DI BAWAH DENGAN URL APPS SCRIPT HASIL DEPLOY ANDA
         const API_URL = "https://script.google.com/a/macros/indo-porcelain.com/s/AKfycbza5uANGePmTEdpcrn_5lDjgudN7ySuhkWv26ynFa9d5604Sb4pA_0w3dR0Xr4y_IbMAg/exec";
 
         // ==========================================
@@ -244,6 +243,9 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
                     body: JSON.stringify({ action: "login", username: u, password: p })
                 });
                 const result = await response.json();
@@ -258,7 +260,7 @@
                 }
             } catch (error) {
                 console.error("Error login:", error);
-                alert("Terjadi kesalahan sistem saat login.");
+                alert("Terjadi kesalahan sistem saat login. Pastikan deployment Apps Script diset ke 'Anyone'.");
             }
         }
 
@@ -286,6 +288,9 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
                     body: JSON.stringify({
                         action: "addLomba",
                         namaLomba: namaLomba,
@@ -315,10 +320,10 @@
             }
             tbody.innerHTML = data.map(item => `
                 <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3 font-semibold">${item.namaLomba}</td>
-                    <td class="p-3"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">${item.kategori}</span></td>
-                    <td class="p-3">${item.lokasi}</td>
-                    <td class="p-3">${item.pic}</td>
+                    <td class="p-3 font-semibold">${item.namaLomba || '-'}</td>
+                    <td class="p-3"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">${item.kategori || '-'}</span></td>
+                    <td class="p-3">${item.lokasi || '-'}</td>
+                    <td class="p-3">${item.pic || '-'}</td>
                 </tr>
             `).join('');
         }
@@ -326,9 +331,11 @@
         function populateLombaDropdown(data) {
             const select = document.getElementById("selectLomba");
             select.innerHTML = `<option value="">-- Pilih Lomba --</option>`;
-            data.forEach(item => {
-                select.innerHTML += `<option value="${item.namaLomba}">${item.namaLomba} (${item.kategori})</option>`;
-            });
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    select.innerHTML += `<option value="${item.namaLomba}">${item.namaLomba} (${item.kategori})</option>`;
+                });
+            }
         }
 
         // ==========================================
@@ -352,6 +359,9 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
                     body: JSON.stringify({
                         action: "addPeserta",
                         namaPeserta: namaPeserta,
@@ -380,10 +390,10 @@
             }
             tbody.innerHTML = data.map(item => `
                 <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3 font-semibold">${item.namaPeserta}</td>
-                    <td class="p-3">${item.rtRw}</td>
-                    <td class="p-3 text-blue-600">${item.lombaId}</td>
-                    <td class="p-3"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">${item.status}</span></td>
+                    <td class="p-3 font-semibold">${item.namaPeserta || '-'}</td>
+                    <td class="p-3">${item.rtRw || '-'}</td>
+                    <td class="p-3 text-blue-600">${item.lombaId || '-'}</td>
+                    <td class="p-3"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">${item.status || 'Terdaftar'}</span></td>
                 </tr>
             `).join('');
         }
@@ -399,10 +409,12 @@
                 let totalMasuk = 0;
                 let totalKeluar = 0;
 
-                data.forEach(item => {
-                    if (item.jenis === "Masuk") totalMasuk += Number(item.jumlah);
-                    else if (item.jenis === "Keluar") totalKeluar += Number(item.jumlah);
-                });
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        if (item.jenis === "Masuk") totalMasuk += Number(item.jumlah || 0);
+                        else if (item.jenis === "Keluar") totalKeluar += Number(item.jumlah || 0);
+                    });
+                }
 
                 document.getElementById("totalMasuk").innerText = `Rp ${totalMasuk.toLocaleString('id-ID')}`;
                 document.getElementById("totalKeluar").innerText = `Rp ${totalKeluar.toLocaleString('id-ID')}`;
