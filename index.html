@@ -45,7 +45,7 @@
         <!-- STATUS ADMIN BANNER -->
         <div id="adminBanner" class="admin-only bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-sm">
             <p class="font-bold">Modus Admin Aktif</p>
-            <p class="text-sm">Anda memiliki akses untuk menambah Lomba, Kas, dan Data Panitia.</p>
+            <p class="text-sm">Anda memiliki akses penuh untuk menambah Lomba, Transaksi Kas, dan melihat seluruh log data.</p>
         </div>
 
         <!-- DASHBOARD RINGKASAN KAS -->
@@ -67,13 +67,47 @@
             </div>
         </section>
 
-        <!-- GRID FORM & TAMPILAN DATA LOMBA -->
+        <!-- GRID FORM & TAMPILAN DATA -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- KANAN/KIRI: FORM-FORM INPUT -->
+            <!-- FORM-FORM INPUT (KOLOM KIRI) -->
             <div class="space-y-6 lg:col-span-1">
                 
-                <!-- 1. FORM TAMBAH LOMBA (ADMIN ONLY) -->
+                <!-- 1. FORM INPUT KAS (ADMIN ONLY) -->
+                <div class="admin-only bg-white p-6 rounded-xl shadow-sm border border-purple-200">
+                    <h3 class="text-md font-bold mb-4 text-purple-600">Catat Transaksi Kas</h3>
+                    <form onsubmit="event.preventDefault(); addKas(
+                        document.getElementById('inputKeteranganKas').value,
+                        document.getElementById('selectJenisKas').value,
+                        document.getElementById('inputJumlahKas').value,
+                        document.getElementById('inputPJKas').value
+                    );" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Keterangan / Deskripsi</label>
+                            <input type="text" id="inputKeteranganKas" placeholder="Contoh: Donasi Pak RT / Beli Hadiah" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Jenis Transaksi</label>
+                            <select id="selectJenisKas" class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                                <option value="Masuk">Pemasukan (Masuk)</option>
+                                <option value="Keluar">Pengeluaran (Keluar)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah (Rp)</label>
+                            <input type="number" id="inputJumlahKas" placeholder="100000" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Penanggung Jawab (PJ)</label>
+                            <input type="text" id="inputPJKas" placeholder="Nama PJ Transaksi" required class="w-full border p-2 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold py-2 rounded-lg transition">
+                            Simpan Transaksi Kas
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. FORM TAMBAH LOMBA (ADMIN ONLY) -->
                 <div class="admin-only bg-white p-6 rounded-xl shadow-sm border border-blue-200">
                     <h3 class="text-md font-bold mb-4 text-blue-600">Tambah Lomba Baru</h3>
                     <form onsubmit="event.preventDefault(); addLomba(
@@ -109,7 +143,7 @@
                     </form>
                 </div>
 
-                <!-- 2. FORM PENDAFTARAN PESERTA (PUBLIC / ADMIN) -->
+                <!-- 3. FORM PENDAFTARAN PESERTA (PUBLIC / UMUM) -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <h3 class="text-md font-bold mb-4 text-green-600">Pendaftaran Peserta Lomba</h3>
                     <form onsubmit="event.preventDefault(); addPeserta(
@@ -139,9 +173,29 @@
 
             </div>
 
-            <!-- TABEL-TABEL DATA -->
+            <!-- TABEL-TABEL DATA (KOLOM KANAN) -->
             <div class="space-y-6 lg:col-span-2">
                 
+                <!-- TABEL MUTASI / RIWAYAT KAS -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-md font-bold mb-4 text-gray-700">Riwayat Mutasi Kas</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                                <tr>
+                                    <th class="p-3 border-b">Keterangan</th>
+                                    <th class="p-3 border-b">Jenis</th>
+                                    <th class="p-3 border-b">Jumlah</th>
+                                    <th class="p-3 border-b">PJ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableKasBody">
+                                <tr><td colspan="4" class="p-3 text-center text-gray-400">Memuat data kas...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- TABEL DAFTAR LOMBA -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <h3 class="text-md font-bold mb-4 text-gray-700">Daftar Lomba Tersedia</h3>
@@ -243,9 +297,7 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8"
-                    },
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({ action: "login", username: u, password: p })
                 });
                 const result = await response.json();
@@ -260,7 +312,7 @@
                 }
             } catch (error) {
                 console.error("Error login:", error);
-                alert("Terjadi kesalahan sistem saat login. Pastikan deployment Apps Script diset ke 'Anyone'.");
+                alert("Gagal terhubung ke server.");
             }
         }
 
@@ -271,11 +323,88 @@
         }
 
         // ==========================================
-        // 2. MANAJEMEN LOMBA
+        // 2. MANAJEMEN KAS PANITIA (INPUT & LIST)
+        // ==========================================
+        async function fetchKasData() {
+            try {
+                const response = await fetch(`${API_URL}?action=getKas`, { method: "GET" });
+                const data = await response.json();
+                
+                let totalMasuk = 0;
+                let totalKeluar = 0;
+
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        const jenis = item.jenis || item.Jenis;
+                        const jumlah = Number(item.jumlah || item.Jumlah || 0);
+                        if (jenis === "Masuk") totalMasuk += jumlah;
+                        else if (jenis === "Keluar") totalKeluar += jumlah;
+                    });
+                }
+
+                document.getElementById("totalMasuk").innerText = `Rp ${totalMasuk.toLocaleString('id-ID')}`;
+                document.getElementById("totalKeluar").innerText = `Rp ${totalKeluar.toLocaleString('id-ID')}`;
+                document.getElementById("saldoAkhir").innerText = `Rp ${(totalMasuk - totalKeluar).toLocaleString('id-ID')}`;
+
+                renderKasTable(data);
+            } catch (error) {
+                console.error("Gagal mengambil data Kas:", error);
+            }
+        }
+
+        async function addKas(keterangan, jenis, jumlah, pj) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "addKas",
+                        keterangan: keterangan,
+                        jenis: jenis,
+                        jumlah: jumlah,
+                        pj: pj
+                    })
+                });
+                const result = await response.json();
+                if (result.status === "success") {
+                    alert("Transaksi Kas Berhasil Disimpan!");
+                    document.getElementById('inputKeteranganKas').value = '';
+                    document.getElementById('inputJumlahKas').value = '';
+                    document.getElementById('inputPJKas').value = '';
+                    fetchKasData();
+                }
+            } catch (error) {
+                console.error("Gagal menambah kas:", error);
+            }
+        }
+
+        function renderKasTable(data) {
+            const tbody = document.getElementById("tableKasBody");
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-400">Belum ada transaksi kas</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(item => {
+                const jenis = item.jenis || item.Jenis;
+                const badgeClass = jenis === 'Masuk' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                const jumlah = Number(item.jumlah || item.Jumlah || 0);
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 font-medium">${item.keterangan || item.Keterangan || '-'}</td>
+                        <td class="p-3"><span class="${badgeClass} px-2 py-0.5 rounded text-xs font-semibold">${jenis}</span></td>
+                        <td class="p-3 font-semibold">Rp ${jumlah.toLocaleString('id-ID')}</td>
+                        <td class="p-3">${item.pj || item.PJ || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // 3. MANAJEMEN LOMBA
         // ==========================================
         async function fetchLomba() {
             try {
-                const response = await fetch(`${API_URL}?action=getLomba`);
+                const response = await fetch(`${API_URL}?action=getLomba`, { method: "GET" });
                 const data = await response.json();
                 renderLombaTable(data);
                 populateLombaDropdown(data);
@@ -288,9 +417,7 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8"
-                    },
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({
                         action: "addLomba",
                         namaLomba: namaLomba,
@@ -320,10 +447,10 @@
             }
             tbody.innerHTML = data.map(item => `
                 <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3 font-semibold">${item.namaLomba || '-'}</td>
-                    <td class="p-3"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">${item.kategori || '-'}</span></td>
-                    <td class="p-3">${item.lokasi || '-'}</td>
-                    <td class="p-3">${item.pic || '-'}</td>
+                    <td class="p-3 font-semibold">${item.namaLomba || item.NamaLomba || '-'}</td>
+                    <td class="p-3"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">${item.kategori || item.Kategori || '-'}</span></td>
+                    <td class="p-3">${item.lokasi || item.Lokasi || '-'}</td>
+                    <td class="p-3">${item.pic || item.PIC || '-'}</td>
                 </tr>
             `).join('');
         }
@@ -333,17 +460,21 @@
             select.innerHTML = `<option value="">-- Pilih Lomba --</option>`;
             if (data && data.length > 0) {
                 data.forEach(item => {
-                    select.innerHTML += `<option value="${item.namaLomba}">${item.namaLomba} (${item.kategori})</option>`;
+                    const nama = item.namaLomba || item.NamaLomba;
+                    const kat = item.kategori || item.Kategori;
+                    if(nama) {
+                        select.innerHTML += `<option value="${nama}">${nama} (${kat})</option>`;
+                    }
                 });
             }
         }
 
         // ==========================================
-        // 3. MANAJEMEN PESERTA
+        // 4. MANAJEMEN PESERTA
         // ==========================================
         async function fetchPeserta() {
             try {
-                const response = await fetch(`${API_URL}?action=getPeserta`);
+                const response = await fetch(`${API_URL}?action=getPeserta`, { method: "GET" });
                 const data = await response.json();
                 renderPesertaTable(data);
             } catch (error) {
@@ -359,9 +490,7 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8"
-                    },
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({
                         action: "addPeserta",
                         namaPeserta: namaPeserta,
@@ -390,38 +519,12 @@
             }
             tbody.innerHTML = data.map(item => `
                 <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3 font-semibold">${item.namaPeserta || '-'}</td>
-                    <td class="p-3">${item.rtRw || '-'}</td>
-                    <td class="p-3 text-blue-600">${item.lombaId || '-'}</td>
-                    <td class="p-3"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">${item.status || 'Terdaftar'}</span></td>
+                    <td class="p-3 font-semibold">${item.namaPeserta || item.NamaPeserta || '-'}</td>
+                    <td class="p-3">${item.rtRw || item.rtRW || '-'}</td>
+                    <td class="p-3 text-blue-600">${item.lombaId || item.LombaID || '-'}</td>
+                    <td class="p-3"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">${item.status || item.Status || 'Terdaftar'}</span></td>
                 </tr>
             `).join('');
-        }
-
-        // ==========================================
-        // 4. MANAJEMEN KAS & LAPORAN
-        // ==========================================
-        async function fetchKasData() {
-            try {
-                const response = await fetch(`${API_URL}?action=getKas`);
-                const data = await response.json();
-                
-                let totalMasuk = 0;
-                let totalKeluar = 0;
-
-                if (Array.isArray(data)) {
-                    data.forEach(item => {
-                        if (item.jenis === "Masuk") totalMasuk += Number(item.jumlah || 0);
-                        else if (item.jenis === "Keluar") totalKeluar += Number(item.jumlah || 0);
-                    });
-                }
-
-                document.getElementById("totalMasuk").innerText = `Rp ${totalMasuk.toLocaleString('id-ID')}`;
-                document.getElementById("totalKeluar").innerText = `Rp ${totalKeluar.toLocaleString('id-ID')}`;
-                document.getElementById("saldoAkhir").innerText = `Rp ${(totalMasuk - totalKeluar).toLocaleString('id-ID')}`;
-            } catch (error) {
-                console.error("Gagal mengambil data Kas:", error);
-            }
         }
 
         // ==========================================
