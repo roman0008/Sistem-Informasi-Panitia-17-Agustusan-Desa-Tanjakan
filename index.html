@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi & Management HUT RI 17 Agustusan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        merah: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container { position: relative; height: 280px; width: 100%; }
+        .glass-header {
+            background: rgba(190, 18, 60, 0.95);
+            backdrop-filter: blur(12px);
+        }
+        .bunting-bg {
+            background-image: radial-gradient(#e11d48 0.75px, transparent 0.75px), radial-gradient(#ffffff 0.75px, #f8fafc 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 glass-header text-white shadow-lg border-b border-red-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Brand -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="w-10 h-10 rounded-xl bg-white text-red-700 flex items-center justify-center font-black text-xl shadow-md border-2 border-red-200">
+                        🇮🇩
+                    </div>
+                    <div>
+                        <span class="text-lg font-extrabold tracking-tight block leading-none text-white">HUT RI Ke-81</span>
+                        <span class="text-[10px] text-red-100 tracking-wider uppercase font-semibold">Panitia 17 Agustusan</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <nav class="hidden lg:flex space-x-1 text-xs font-semibold">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-3 py-2 rounded-lg bg-red-800 text-white transition flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+                    </button>
+                    <button onclick="switchTab('lomba')" id="nav-lomba" class="nav-btn px-3 py-2 rounded-lg hover:bg-red-800/70 text-red-100 hover:text-white transition flex items-center space-x-2">
+                        <i class="fa-solid fa-trophy"></i><span>Lomba 17-an</span>
+                    </button>
+                    <button onclick="switchTab('keuangan')" id="nav-keuangan" class="nav-btn px-3 py-2 rounded-lg hover:bg-red-800/70 text-red-100 hover:text-white transition flex items-center space-x-2">
+                        <i class="fa-solid fa-wallet"></i><span>Kas & Donasi Warga</span>
+                    </button>
+                    <button onclick="switchTab('rundown')" id="nav-rundown" class="nav-btn px-3 py-2 rounded-lg hover:bg-red-800/70 text-red-100 hover:text-white transition flex items-center space-x-2">
+                        <i class="fa-solid fa-clock"></i><span>Rundown Acara</span>
+                    </button>
+                    <button onclick="switchTab('panitia')" id="nav-panitia" class="nav-btn px-3 py-2 rounded-lg hover:bg-red-800/70 text-red-100 hover:text-white transition flex items-center space-x-2">
+                        <i class="fa-solid fa-users"></i><span>Panitia & Karang Taruna</span>
+                    </button>
+                    <button onclick="switchTab('github')" id="nav-github" class="nav-btn px-3 py-2 rounded-lg bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-brands fa-github"></i><span>Deploy Online</span>
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="lg:hidden flex items-center">
+                    <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="p-2 rounded-lg text-red-100 hover:text-white hover:bg-red-800 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-red-900 border-t border-red-800 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('dashboard')" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-white hover:bg-red-800">Dashboard</button>
+            <button onclick="switchTab('lomba')" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-red-100 hover:bg-red-800">Daftar Lomba 17-an</button>
+            <button onclick="switchTab('keuangan')" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-red-100 hover:bg-red-800">Kas & Iuran Warga</button>
+            <button onclick="switchTab('rundown')" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-red-100 hover:bg-red-800">Rundown Hari-H</button>
+            <button onclick="switchTab('panitia')" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-red-100 hover:bg-red-800">Struktur Panitia</button>
+            <button onclick="switchTab('github')" class="block w-full text-left px-3 py-2 rounded-md text-sm font-bold text-amber-300 hover:bg-red-800">Panduan Deploy GitHub</button>
+        </div>
+    </header>
+
+    <!-- Hero Banner Section -->
+    <div class="bg-gradient-to-br from-red-800 via-red-700 to-slate-900 text-white relative overflow-hidden py-10 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-400">
+        <!-- Background Decorative Red White Badges -->
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:20px_20px]"></div>
+        
+        <div class="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            <div class="lg:col-span-2 space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-amber-300 text-xs font-bold uppercase tracking-wider">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                    Nusantara Baru • Indonesia Maju 🇲🇨
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-black tracking-tight">
+                    Semarak HUT Kemerdekaan RI Ke-81
+                </h1>
+                <p class="text-red-100/90 text-sm sm:text-base max-w-2xl leading-relaxed">
+                    Pusat koordinasi perlombaan, transparansi iuran warga & sponsor, jadwal panggung malam puncak, serta rincian struktur panitia Karang Taruna.
+                </p>
+            </div>
+
+            <!-- Countdown Box -->
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-2xl text-center">
+                <p class="text-xs text-amber-300 uppercase font-extrabold tracking-wider mb-1">Hitung Mundur 17 Agustus 2026</p>
+                <h3 class="text-base font-bold text-white mb-3">Detik-Detik Proklamasi & Pesta Rakyat</h3>
+                <div class="grid grid-cols-4 gap-2 text-center my-3" id="countdownContainer">
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-red-500/40">
+                        <span id="cd-days" class="text-xl sm:text-2xl font-black text-amber-400 block">00</span>
+                        <span class="text-[9px] text-slate-300 uppercase font-semibold">Hari</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-red-500/40">
+                        <span id="cd-hours" class="text-xl sm:text-2xl font-black text-amber-400 block">00</span>
+                        <span class="text-[9px] text-slate-300 uppercase font-semibold">Jam</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-red-500/40">
+                        <span id="cd-minutes" class="text-xl sm:text-2xl font-black text-amber-400 block">00</span>
+                        <span class="text-[9px] text-slate-300 uppercase font-semibold">Menit</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-red-500/40">
+                        <span id="cd-seconds" class="text-xl sm:text-2xl font-black text-amber-400 block">00</span>
+                        <span class="text-[9px] text-slate-300 uppercase font-semibold">Detik</span>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center justify-center gap-2 text-xs text-red-100 font-medium">
+                    <i class="fa-solid fa-location-dot text-amber-400"></i>
+                    <span>Lapangan Utama RT 04 / RW 08 Kemerdekaan</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <div id="tab-dashboard" class="tab-content space-y-8">
+            <!-- KPI Statistics Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Lomba</p>
+                            <h3 class="text-2xl font-black text-slate-800 mt-1" id="kpiTotalLomba">8 Lomba</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                        <span class="text-red-600 font-bold"><i class="fa-solid fa-user-group"></i> 142</span> Peserta Terdaftar
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kas & Donasi Warga</p>
+                            <h3 class="text-2xl font-black text-emerald-600 mt-1" id="kpiTotalMasuk">Rp 18.750.000</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                        <span class="text-emerald-600 font-bold">+15%</span> Target Iuran Tercapai
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pengeluaran Panitia</p>
+                            <h3 class="text-2xl font-black text-rose-600 mt-1" id="kpiTotalKeluar">Rp 11.200.000</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                        <span class="text-slate-600 font-bold">Sisa Kas: </span>
+                        <span id="kpiSaldoKas" class="text-emerald-700 font-black">Rp 7.550.000</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Panitia Karang Taruna</p>
+                            <h3 class="text-2xl font-black text-slate-800 mt-1">28 Anggota</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-people-carry-box"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                        <span class="text-amber-600 font-bold"><i class="fa-solid fa-check"></i> 5 Divisi Kerja</span> Aktif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Financial Flow Bar Chart -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                        <div>
+                            <h3 class="text-base font-extrabold text-slate-800">Arus Masuk & Keluar Kas 17-an</h3>
+                            <p class="text-xs text-slate-500">Rekap mingguan iuran RT, donasi sponsor, & belanja perlengkapan</p>
+                        </div>
+                        <span class="inline-flex text-[10px] uppercase font-bold bg-red-50 text-red-700 px-3 py-1 rounded-full border border-red-200">Real-time</span>
+                    </div>
+                    <div class="chart-container mt-4">
+                        <canvas id="kas17Chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Expense Category Doughnut Chart -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="pb-4 border-b border-slate-100">
+                        <h3 class="text-base font-extrabold text-slate-800">Alokasi Anggaran Belanja</h3>
+                        <p class="text-xs text-slate-500">Persentase panggung, piala & konsumsi</p>
+                    </div>
+                    <div class="chart-container mt-4">
+                        <canvas id="porsiAnggaranChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Contests Quick View -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-800">Highlight Lomba Terfavorit</h3>
+                        <p class="text-xs text-slate-500">Lomba dengan jumlah pendaftar terbanyak tahun ini</p>
+                    </div>
+                    <button onclick="switchTab('lomba')" class="text-xs text-red-600 hover:text-red-800 font-bold flex items-center gap-1">
+                        Lihat Semua Lomba <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="dashboardLombaPreview">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: LOMBA 17-AN ================= -->
+        <div id="tab-lomba" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-800">Manajemen Perlombaan 17 Agustus</h2>
+                    <p class="text-xs text-slate-500">Daftar lomba anak & dewasa, PJ seksi acara, dan pendaftaran peserta</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openModal('modalLomba')" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Tambah Lomba Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="text" id="searchLombaInput" onkeyup="filterLomba()" placeholder="Cari nama lomba atau PJ seksi..." class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <select id="filterKategoriLomba" onchange="filterLomba()" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-red-500 font-medium">
+                    <option value="ALL">Semua Kategori (Anak & Dewasa)</option>
+                    <option value="Anak-Anak">Anak-Anak</option>
+                    <option value="Ibu-Ibu">Ibu-Ibu</option>
+                    <option value="Bapak-Bapak">Bapak-Bapak</option>
+                    <option value="Umum">Umum / Beregu</option>
+                </select>
+            </div>
+
+            <!-- Contests Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="lombaGridContainer">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: KAS & DONASI WARGA ================= -->
+        <div id="tab-keuangan" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-800">Laporan Kas & Donasi Warga HUT RI</h2>
+                    <p class="text-xs text-slate-500">Transparansi rekapitulasi iuran RT, donasi toko/sponsor, & biaya perlengkapan</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openModal('modalKas')" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-circle-plus"></i> Catat Transaksi
+                    </button>
+                    <button onclick="exportToCSV()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv"></i> Unduh CSV Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="flex items-center gap-2 text-xs text-slate-700 font-bold">
+                        <i class="fa-solid fa-list-ul text-red-600"></i> Mutasi Transaksi Terbaru
+                    </div>
+                    <div>
+                        <select id="filterKasType" onchange="filterKasTable()" class="text-xs border border-slate-200 px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <option value="ALL">Semua Transaksi (Masuk & Keluar)</option>
+                            <option value="MASUK">Pemasukan (Iuran / Sponsor)</option>
+                            <option value="KELUAR">Pengeluaran (Belanja / Hadiah)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="kasTable">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b border-slate-200">
+                                <th class="px-6 py-3.5">Tanggal</th>
+                                <th class="px-6 py-3.5">Keterangan / Sumber</th>
+                                <th class="px-6 py-3.5">Tipe</th>
+                                <th class="px-6 py-3.5">Kategori / Peruntukan</th>
+                                <th class="px-6 py-3.5 text-right">Nominal (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-xs text-slate-700" id="kasTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: RUNDOWN ACARA ================= -->
+        <div id="tab-rundown" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-800">Rundown Agenda 16 - 17 Agustus</h2>
+                    <p class="text-xs text-slate-500">Susunan kegiatan Malam Tirakatan, Upacara, Jam Lomba & Panggung Malam Puncak</p>
+                </div>
+                <button onclick="window.print()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Cetak Jadwal
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="relative border-l-2 border-red-500 ml-4 pl-6 space-y-6" id="rundownTimelineContainer">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: STRUKTUR PANITIA ================= -->
+        <div id="tab-panitia" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-800">Struktur Panitia HUT RI Karang Taruna</h2>
+                    <p class="text-xs text-slate-500">Penanggung jawab divisi, koordinator lapangan & kontak WhatsApp</p>
+                </div>
+                <span class="text-xs font-extrabold px-3 py-1.5 bg-red-100 text-red-800 rounded-lg">
+                    SK Ketua RT/RW No: 017/HUT-RI/2026
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="panitiaGridContainer">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- ================= TAB 6: GITHUB PAGES GUIDE ================= -->
+        <div id="tab-github" class="tab-content hidden space-y-6">
+            <div class="bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl border border-red-700/40">
+                <div class="max-w-3xl space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 text-slate-900 text-xs font-black uppercase">
+                        <i class="fa-brands fa-github"></i> Panduan Hosting Gratis
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black">Langkah Deploy Aplikasi ke GitHub Pages</h2>
+                    <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                        Agarkan seluruh warga RT/RW dan anggota Karang Taruna dapat membuka web ini dari HP masing-masing melalui tautan seperti <code class="bg-slate-800 px-2 py-0.5 rounded text-amber-300 font-mono">https://username.github.io/17agustus/</code>.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <!-- Step 1 -->
+                    <div class="bg-slate-800/90 border border-slate-700 p-5 rounded-2xl space-y-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-extrabold text-sm">1</div>
+                        <h4 class="font-bold text-base text-amber-300">Buat Repository Baru</h4>
+                        <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Buka akun GitHub di <a href="https://github.com/new" target="_blank" class="text-red-400 underline font-bold">github.com/new</a>.</li>
+                            <li>Beri Repository Name: <b class="text-white font-mono">17agustus</b>.</li>
+                            <li>Atur visibilitas ke <b>Public</b>.</li>
+                            <li>Klik tombol <b>Create repository</b>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-slate-800/90 border border-slate-700 p-5 rounded-2xl space-y-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-extrabold text-sm">2</div>
+                        <h4 class="font-bold text-base text-amber-300">Upload File index.html</h4>
+                        <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Simpan kode HTML ini di komputer dengan nama <b class="text-white font-mono">index.html</b>.</li>
+                            <li>Di halaman GitHub repository tadi, pilih opsi <b>uploading an existing file</b>.</li>
+                            <li>Upload file <b class="text-white font-mono">index.html</b> lalu klik tombol <b>Commit changes</b>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-slate-800/90 border border-slate-700 p-5 rounded-2xl space-y-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-extrabold text-sm">3</div>
+                        <h4 class="font-bold text-base text-amber-300">Aktifkan Fitur Pages</h4>
+                        <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Klik menu tab <b>Settings</b> pada bagian atas repository.</li>
+                            <li>Pilih menu <b>Pages</b> di bilah navigasi sebelah kiri.</li>
+                            <li>Pada opsi <i>Build and deployment (Branch)</i>, pilih branch <b class="text-white font-mono">main</b> / <b class="text-white font-mono">master</b>.</li>
+                            <li>Klik tombol <b>Save</b>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-slate-800/90 border border-slate-700 p-5 rounded-2xl space-y-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-extrabold text-sm">4</div>
+                        <h4 class="font-bold text-base text-amber-300">Sebarkan Link Web ke Warga</h4>
+                        <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
+                            <li>Tunggu 1–2 menit hingga proses build selesai.</li>
+                            <li>Web 17-an sudah live di: <br><code class="text-amber-300 font-bold underline font-mono text-[11px]">https://[username-anda].github.io/17agustus/</code></li>
+                            <li>Bagikan link di grup WhatsApp RT/RW dan Karang Taruna!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Add Lomba -->
+    <div id="modalLomba" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-base font-extrabold text-slate-800">Tambah Perlombaan 17-an</h3>
+                <button onclick="closeModal('modalLomba')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="formAddLomba" onsubmit="handleAddLomba(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nama Lomba</label>
+                    <input type="text" id="lombaNama" required placeholder="Contoh: Balap Karung Helm / Panjat Pinang" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Kategori</label>
+                        <select id="lombaKategori" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                            <option value="Anak-Anak">Anak-Anak</option>
+                            <option value="Ibu-Ibu">Ibu-Ibu</option>
+                            <option value="Bapak-Bapak">Bapak-Bapak</option>
+                            <option value="Umum">Umum / Beregu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Estimasi Peserta</label>
+                        <input type="number" id="lombaPeserta" required placeholder="20" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Penanggung Jawab (PJ) Seksi</label>
+                    <input type="text" id="lombaPJ" required placeholder="Rizky Karang Taruna" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Lokasi Lomba</label>
+                    <input type="text" id="lombaLokasi" required placeholder="Lapangan RT 04 / Lapangan Voli" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Hadiah Utama</label>
+                    <input type="text" id="lombaHadiah" required placeholder="Piala + Sepeda / Peralatan Dapur" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modalLomba')" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700">Simpan Lomba</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Add Kas -->
+    <div id="modalKas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-base font-extrabold text-slate-800">Catat Kas & Iuran Warga</h3>
+                <button onclick="closeModal('modalKas')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="formAddKas" onsubmit="handleAddKas(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Jenis Transaksi</label>
+                    <select id="kasTipe" required class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                        <option value="MASUK">Pemasukan (Iuran Warga / Sponsor / Donatur)</option>
+                        <option value="KELUAR">Pengeluaran (Beli Piala / Sewa Sound / Konsumsi)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Keterangan / Rincian</label>
+                    <input type="text" id="kasKet" required placeholder="Iuran RT 02 / Beli Karung & Tali Tambang" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Nominal (Rp)</label>
+                        <input type="number" id="kasNominal" required placeholder="250000" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Tanggal</label>
+                        <input type="date" id="kasTgl" required class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Kategori / Divisi</label>
+                    <select id="kasKategori" class="w-full border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                        <option value="Iuran Warga RT/RW">Iuran Warga RT/RW</option>
+                        <option value="Sponsor & UMKM">Sponsor & UMKM</option>
+                        <option value="Seksi Perlengkapan">Seksi Perlengkapan</option>
+                        <option value="Seksi Hadiah & Piala">Seksi Hadiah & Piala</option>
+                        <option value="Seksi Konsumsi">Seksi Konsumsi</option>
+                        <option value="Panggung Puncak">Panggung Puncak & Sound</option>
+                    </select>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modalKas')" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700">Simpan Transaksi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="text-amber-400 font-extrabold text-lg">🇲🇨 SIP-17AN</span>
+                <span>• Sistem Informasi Panitia HUT RI Ke-81</span>
+            </div>
+            <p class="text-slate-500">© 2026 Panitia Karang Taruna Indonesia. Hosted on GitHub Pages.</p>
+        </div>
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // Initial Data States
+        let lombaData = [
+            { id: 1, nama: "Panjat Pinang Dewasa", kategori: "Bapak-Bapak", peserta: 24, pj: "Rizky & Budi", lokasi: "Lapangan Utama", hadiah: "Sepeda, Magic Com & Kipas Angin", status: "Aktif" },
+            { id: 2, nama: "Balap Karung Helm Anak", kategori: "Anak-Anak", peserta: 32, pj: "Siti & Dewi", lokasi: "Depan Pos Ronda RT 02", hadiah: "Piala + Set Alat Tulis", status: "Aktif" },
+            { id: 3, nama: "Makan Kerupuk Raksasa", kategori: "Anak-Anak", peserta: 40, pj: "Ahmad", lokasi: "Halaman Masjid", hadiah: "Piala + Mainan Edukasi", status: "Aktif" },
+            { id: 4, nama: "Tarik Tambang Antar RT", kategori: "Umum", peserta: 20, pj: "Hendra", lokasi: "Lapangan Utama", hadiah: "Piala Bergilir + Uang Tunai", status: "Aktif" },
+            { id: 5, nama: "Ngapit Terong / Joget Balon", kategori: "Ibu-Ibu", peserta: 18, pj: "Ibu Nurhayati", lokasi: "Panggung RT 04", hadiah: "Set Wajan & Perabotan Dapur", status: "Aktif" },
+            { id: 6, nama: "Lomba Memasukkan Paku ke Botol", kategori: "Anak-Anak", peserta: 25, pj: "Fajri", lokasi: "Halaman RT 01", hadiah: "Piala + Botol Minum Unik", status: "Aktif" }
+        ];
+
+        let kasData = [
+            { id: 101, tgl: "2026-08-01", ket: "Penerimaan Iuran Warga RT 01 - 04", tipe: "MASUK", nominal: 8500000, kategori: "Iuran Warga RT/RW" },
+            { id: 102, tgl: "2026-08-03", ket: "Sponsorship Toko Kelontong Berkah", tipe: "MASUK", nominal: 2500000, kategori: "Sponsor & UMKM" },
+            { id: 103, tgl: "2026-08-05", ket: "DP Sewa Panggung & Sound System 5000W", tipe: "KELUAR", nominal: 3500000, kategori: "Panggung Puncak" },
+            { id: 104, tgl: "2026-08-07", ket: "Pembelian 3 Set Pohon Pinang & Oli", tipe: "KELUAR", nominal: 1800000, kategori: "Seksi Perlengkapan" },
+            { id: 105, tgl: "2026-08-09", ket: "Pembelian Piala Lomba & Banner 17an", tipe: "KELUAR", nominal: 2900000, kategori: "Seksi Hadiah & Piala" },
+            { id: 106, tgl: "2026-08-10", ket: "Donasi Hamba Allah via Kas RT", tipe: "MASUK", nominal: 5000000, kategori: "Iuran Warga RT/RW" },
+            { id: 107, tgl: "2026-08-12", ket: "Belanja Snack & Konsumsi Gotong Royong", tipe: "KELUAR", nominal: 1500000, kategori: "Seksi Konsumsi" }
+        ];
+
+        let panitiaData = [
+            { nama: "Aris Munandar", jabatan: "Ketua Panitia HUT RI", divisi: "Inti Karang Taruna", hp: "6281234567890", foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" },
+            { nama: "Dimas Perkasa", jabatan: "Wakil Ketua", divisi: "Inti Karang Taruna", hp: "6281298765432", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
+            { nama: "Nabila Putri", jabatan: "Sekretaris", divisi: "Sekretariat", hp: "6281311223344", foto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80" },
+            { nama: "Reni Anggraini", jabatan: "Bendahara 1", divisi: "Keuangan", hp: "6281555667788", foto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80" },
+            { nama: "Fajar Ramadan", jabatan: "Koordinator Lomba", divisi: "Seksi Perlombaan", hp: "6281777889900", foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" },
+            { nama: "Bambang Kurnia", jabatan: "Koord. Perlengkapan", divisi: "Panggung & Sound", hp: "6281888990011", foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80" },
+            { nama: "Ibu Endang", jabatan: "Koord. Konsumsi", divisi: "Konsumsi Warga", hp: "6281999001122", foto: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80" },
+            { nama: "Gilang Pratama", jabatan: "Humas & Publikasi", divisi: "Dokumentasi & WA", hp: "6281222334455", foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80" }
+        ];
+
+        let rundownData = [
+            { jam: "16 Agst - 19:30 WIB", acara: "Malam Tirakatan & Syukuran Doa Bersama", pengisi: "Tokoh Masyarakat & Seluruh Warga", PJ: "Ketua RT & Karang Taruna" },
+            { jam: "17 Agst - 07:00 WIB", acara: "Upacara Bendera Kemerdekaan RI Ke-81", pengisi: "Petugas Paskibra Karang Taruna", PJ: "Seksi Upacara" },
+            { jam: "17 Agst - 08:30 WIB", acara: "Sesi Lomba Anak-Anak (Makan Kerupuk, Paku, Balap Karung)", pengisi: "Peserta Anak & Panitia", PJ: "Seksi Lomba Anak" },
+            { jam: "17 Agst - 13:30 WIB", acara: "Sesi Lomba Ibu-Ibu & Bapak-Bapak (Tarik Tambang, Terong)", pengisi: "Warga RT/RW", PJ: "Seksi Lomba Dewasa" },
+            { jam: "17 Agst - 15:30 WIB", acara: "Lomba Utama Panjat Pinang Kolosal", pengisi: "Tim Panjat Pinang RT", PJ: "Seksi Lapangan" },
+            { jam: "17 Agst - 19:30 WIB", acara: "Panggung Malam Puncak, Pentas Seni & Pembagian Hadiah", pengisi: "Pentas Anak, Band Pemuda, Pembagian Piala", PJ: "Seksi Panggung Pensi" }
+        ];
+
+        let chart1, chart2;
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-red-800', 'text-white');
+                btn.classList.add('text-red-100', 'hover:bg-red-800/70');
+            });
+
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav && tabId !== 'github') {
+                activeNav.classList.add('bg-red-800', 'text-white');
+            }
+
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        // Render Functions
+        function renderDashboard() {
+            let totalIn = kasData.filter(k => k.tipe === 'MASUK').reduce((acc, curr) => acc + curr.nominal, 0);
+            let totalOut = kasData.filter(k => k.tipe === 'KELUAR').reduce((acc, curr) => acc + curr.nominal, 0);
+            let saldo = totalIn - totalOut;
+
+            document.getElementById('kpiTotalMasuk').innerText = 'Rp ' + totalIn.toLocaleString('id-ID');
+            document.getElementById('kpiTotalKeluar').innerText = 'Rp ' + totalOut.toLocaleString('id-ID');
+            document.getElementById('kpiSaldoKas').innerText = 'Rp ' + saldo.toLocaleString('id-ID');
+            document.getElementById('kpiTotalLomba').innerText = lombaData.length + ' Lomba';
+
+            // Preview Favorite Contests
+            const container = document.getElementById('dashboardLombaPreview');
+            container.innerHTML = '';
+            lombaData.slice(0, 3).forEach(l => {
+                container.innerHTML += `
+                    <div class="border border-slate-200 bg-slate-50 p-4 rounded-xl space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-red-100 text-red-800">${l.kategori}</span>
+                            <span class="text-xs font-bold text-slate-500"><i class="fa-solid fa-users text-red-600"></i> ${l.peserta} Orang</span>
+                        </div>
+                        <h4 class="font-extrabold text-slate-800 text-sm">${l.nama}</h4>
+                        <p class="text-xs text-slate-600"><i class="fa-solid fa-gift text-amber-500"></i> ${l.hadiah}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function renderLombaGrid() {
+            const container = document.getElementById('lombaGridContainer');
+            container.innerHTML = '';
+
+            lombaData.forEach(l => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-red-100 text-red-800">${l.kategori}</span>
+                                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-user-check"></i> ${l.peserta} Peserta</span>
+                            </div>
+                            <h3 class="font-extrabold text-slate-800 text-base leading-snug">${l.nama}</h3>
+                            
+                            <div class="space-y-2 text-xs text-slate-600 pt-2 border-t border-slate-100">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-user-shield text-red-600 w-4"></i>
+                                    <span>PJ Seksi: <b>${l.pj}</b></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-location-dot text-red-600 w-4"></i>
+                                    <span>${l.lokasi}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-gift text-amber-500 w-4"></i>
+                                    <span>Hadiah: ${l.hadiah}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <button onclick="registerPeserta(${l.id})" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-user-plus"></i> Tambah Peserta (+1)
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function registerPeserta(id) {
+            const item = lombaData.find(x => x.id === id);
+            if (item) {
+                item.peserta++;
+                renderLombaGrid();
+                renderDashboard();
+            }
+        }
+
+        function filterLomba() {
+            const query = document.getElementById('searchLombaInput').value.toLowerCase();
+            const kategori = document.getElementById('filterKategoriLomba').value;
+            const cards = document.querySelectorAll('#lombaGridContainer > div');
+
+            lombaData.forEach((l, idx) => {
+                const matchQuery = l.nama.toLowerCase().includes(query) || l.pj.toLowerCase().includes(query);
+                const matchKategori = kategori === 'ALL' || l.kategori === kategori;
+                if (cards[idx]) {
+                    cards[idx].style.display = (matchQuery && matchKategori) ? 'flex' : 'none';
+                }
+            });
+        }
+
+        function renderKasTable() {
+            const tbody = document.getElementById('kasTableBody');
+            tbody.innerHTML = '';
+
+            kasData.forEach(k => {
+                let badgeType = k.tipe === 'MASUK' 
+                    ? '<span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-extrabold text-[10px]">MASUK</span>' 
+                    : '<span class="px-2.5 py-0.5 bg-rose-100 text-rose-800 rounded-full font-extrabold text-[10px]">KELUAR</span>';
+
+                let colorNominal = k.tipe === 'MASUK' ? 'text-emerald-600 font-extrabold' : 'text-rose-600 font-extrabold';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-6 py-3.5 whitespace-nowrap text-slate-500 font-medium">${k.tgl}</td>
+                        <td class="px-6 py-3.5 font-bold text-slate-800">${k.ket}</td>
+                        <td class="px-6 py-3.5">${badgeType}</td>
+                        <td class="px-6 py-3.5 text-slate-500 font-medium">${k.kategori}</td>
+                        <td class="px-6 py-3.5 text-right ${colorNominal}">${k.tipe === 'MASUK' ? '+' : '-'} Rp ${k.nominal.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterKasTable() {
+            const type = document.getElementById('filterKasType').value;
+            const rows = document.querySelectorAll('#kasTableBody tr');
+
+            kasData.forEach((k, idx) => {
+                if (type === 'ALL' || k.tipe === type) {
+                    rows[idx].style.display = '';
+                } else {
+                    rows[idx].style.display = 'none';
+                }
+            });
+        }
+
+        function renderPanitia() {
+            const container = document.getElementById('panitiaGridContainer');
+            container.innerHTML = '';
+
+            panitiaData.forEach(p => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition text-center space-y-3">
+                        <img src="${p.foto}" alt="${p.nama}" class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-red-500 shadow-sm">
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-sm">${p.nama}</h4>
+                            <p class="text-xs font-bold text-red-600">${p.jabatan}</p>
+                            <span class="inline-block mt-1 text-[10px] bg-slate-100 px-2.5 py-0.5 rounded-md font-semibold text-slate-500">${p.divisi}</span>
+                        </div>
+                        <a href="https://wa.me/${p.hp}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold transition w-full justify-center border border-emerald-200">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        </a>
+                    </div>
+                `;
+            });
+        }
+
+        function renderRundown() {
+            const container = document.getElementById('rundownTimelineContainer');
+            container.innerHTML = '';
+
+            rundownData.forEach((r) => {
+                container.innerHTML += `
+                    <div class="relative group">
+                        <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-red-600 border-4 border-white shadow-sm"></div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <span class="text-xs font-extrabold text-red-700 bg-red-100 px-2.5 py-0.5 rounded-full">${r.jam}</span>
+                                <h4 class="font-extrabold text-slate-800 text-sm mt-1">${r.acara}</h4>
+                                <p class="text-xs text-slate-500"><i class="fa-solid fa-users text-red-600"></i> Pengisi / Pelaksana: <b>${r.pengisi}</b></p>
+                            </div>
+                            <span class="text-[10px] uppercase font-bold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-md">PJ: ${r.PJ}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function initCharts() {
+            const ctx1 = document.getElementById('kas17Chart').getContext('2d');
+            chart1 = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Minggu 1 Agst', 'Minggu 2 Agst', 'Minggu 3 Agst', 'Minggu 4 Agst'],
+                    datasets: [
+                        {
+                            label: 'Pemasukan (Iuran/Donasi)',
+                            data: [8500000, 2500000, 5000000, 2750000],
+                            backgroundColor: '#10b981',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Pengeluaran (Belanja/Hadiah)',
+                            data: [3500000, 4700000, 1500000, 1500000],
+                            backgroundColor: '#f43f5e',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            const ctx2 = document.getElementById('porsiAnggaranChart').getContext('2d');
+            chart2 = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hadiah & Piala', 'Panggung & Sound', 'Sewa Pinang', 'Konsumsi Warga', 'Lain-Lain'],
+                    datasets: [{
+                        data: [35, 30, 15, 12, 8],
+                        backgroundColor: ['#e11d48', '#f59e0b', '#3b82f6', '#10b981', '#64748b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        // Modal Controls
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function handleAddLomba(e) {
+            e.preventDefault();
+            const newL = {
+                id: Date.now(),
+                nama: document.getElementById('lombaNama').value,
+                kategori: document.getElementById('lombaKategori').value,
+                peserta: parseInt(document.getElementById('lombaPeserta').value) || 0,
+                pj: document.getElementById('lombaPJ').value,
+                lokasi: document.getElementById('lombaLokasi').value,
+                hadiah: document.getElementById('lombaHadiah').value,
+                status: 'Aktif'
+            };
+            lombaData.unshift(newL);
+            renderLombaGrid();
+            renderDashboard();
+            closeModal('modalLomba');
+            document.getElementById('formAddLomba').reset();
+        }
+
+        function handleAddKas(e) {
+            e.preventDefault();
+            const newK = {
+                id: Date.now(),
+                tgl: document.getElementById('kasTgl').value,
+                ket: document.getElementById('kasKet').value,
+                tipe: document.getElementById('kasTipe').value,
+                nominal: parseInt(document.getElementById('kasNominal').value) || 0,
+                kategori: document.getElementById('kasKategori').value
+            };
+            kasData.unshift(newK);
+            renderKasTable();
+            renderDashboard();
+            closeModal('modalKas');
+            document.getElementById('formAddKas').reset();
+        }
+
+        function exportToCSV() {
+            let csv = 'Tanggal,Keterangan,Tipe,Kategori,Nominal\n';
+            kasData.forEach(k => {
+                csv += `"${k.tgl}","${k.ket}","${k.tipe}","${k.kategori}",${k.nominal}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Laporan_Kas_17Agustus_2026.csv');
+            a.click();
+        }
+
+        function startCountdown() {
+            const target = new Date("2026-08-17T07:00:00").getTime();
+
+            setInterval(() => {
+                const now = new Date().getTime();
+                const diff = target - now;
+
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+                    document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+                    document.getElementById('cd-minutes').innerText = String(minutes).padStart(2, '0');
+                    document.getElementById('cd-seconds').innerText = String(seconds).padStart(2, '0');
+                }
+            }, 1000);
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderDashboard();
+            renderLombaGrid();
+            renderKasTable();
+            renderPanitia();
+            renderRundown();
+            initCharts();
+            startCountdown();
+        };
+    </script>
+</body>
+</html>
